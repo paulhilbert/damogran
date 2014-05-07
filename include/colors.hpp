@@ -18,6 +18,8 @@
 #include "common.hpp"
 
 namespace damogran {
+namespace colors {
+
 
 template <typename Scalar>
 using col_vec3_t = Eigen::Matrix<Scalar, 3, 1>;
@@ -203,68 +205,20 @@ class HSVA : public col_vec4_t<Scalar> {
 		}
 };
 
-
-
 template <class ColorType>
 struct generate {
 	typedef ColorType color_type;
 	typedef typename ColorType::scalar_type scalar_type;
+	typedef std::pair<scalar_type, scalar_type> range_type;
 
 	static color_type random_hue(scalar_type value = scalar_type(1), scalar_type saturation = scalar_type(1), scalar_type alpha = scalar_type(1));
 	static std::vector<color_type> random_hues(uint32_t count, scalar_type value = scalar_type(1), scalar_type saturation = scalar_type(1), scalar_type alpha = scalar_type(1));
-	//static std::vector<color_type> uniform(unsigned int count, const Range& hueRange, const Range& satRange, const Range& lightRange, float alpha) {
+	static std::vector<color_type> uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha = scalar_type(1));
+	static std::vector<color_type> shuffled_uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha = scalar_type(1));
 };
 
-/*
-inline std::vector<RGBA> Generation::uniformColorsRGBA(unsigned int count, const Range& hueRange, const Range& satRange, const Range& lightRange, float alpha) {
-	float rHue = hueRange.second - hueRange.first;
-	float rSat = satRange.second - satRange.first;
-	float rLight = lightRange.second - lightRange.first;
-	if (rHue < 0.f || rSat < 0.f || rLight < 0.f) {
-		throw std::runtime_error("Generation::uniformColorsRGBA: Invalid range input.");
-	}
-	float sum = rHue/(2.f*M_PI) + rSat + rLight;
-	Vector3f w(rHue / (2.f * M_PI * sum), rSat / sum, rLight / sum);
-	float eps = Eigen::NumTraits<float>::dummy_precision();
-	float prod = (w[0] < eps ? 1.f : w[0]) * (w[1] < eps ? 1.f : w[1]) * (w[2] < eps ? 1.f : w[2]);
 
-	float factor = cbrt(count) / cbrt(prod);
-	for (int i=0; i<3; ++i) {
-		w[i] = std::max(w[i] * factor, 1.f);
-	}
-	unsigned int cS = std::floor(w[1]);
-	unsigned int cL = std::floor(w[2]);
-	unsigned int cH = std::ceil(static_cast<float>(count) / (cS*cL));
-
-	float sH = rHue / (cH > 0.f ? cH : 1.f);
-	float sS = rSat / (cS > 1.f ? cS - 1.f : 1.f);
-	float sL = rLight / (cL > 1.f ? cL - 1.f : 2.f);
-	std::vector<RGBA> result;
-	for (unsigned int i=0; i<cH; ++i) {
-		float h = hueRange.first + static_cast<float>(i) * sH;
-		for (unsigned int j=0; j<cS; ++j) {
-			float s = satRange.first + static_cast<float>(j) * sS;
-			for (unsigned int k=0; k<cL; ++k) {
-				float l = lightRange.first + static_cast<float>(k) * sL;
-				HSVA hsva(h, s, l, alpha);
-				RGBA rgba = Conversion::hsva2rgba(hsva);
-				result.push_back(rgba);
-			}
-		}
-	}
-	result.resize(count);
-	return result;
-}
-
-inline std::vector<RGBA> Generation::shuffledColorsRGBA(unsigned int count, const Range& hueRange, const Range& satRange, const Range& lightRange, float alpha) {
-	std::vector<RGBA> result = uniformColorsRGBA(count, hueRange, satRange, lightRange, alpha);
-	std::random_shuffle(result.begin(), result.end());
-	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-	std::shuffle(result.begin(), result.end(), std::default_random_engine(seed));
-	return result;
-}
-*/
-
+} // colors
 } // damogran
 
 #endif /* DAMOGRAN_COLORS_HPP_ */

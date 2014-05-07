@@ -23,4 +23,5 @@
 // common macros
 #define SPOT (std::string(" (@__FILE__:__LINE__)."))
 
+
 #endif /* DAMOGRAN_COMMON_HPP_ */

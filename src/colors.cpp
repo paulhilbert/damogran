@@ -15,7 +15,11 @@
 
 #include <rng.hpp>
 
+#include <chrono>
+
 namespace damogran {
+namespace colors {
+
 
 template <typename Scalar> struct color_limits_t;
 
@@ -257,6 +261,61 @@ std::vector<typename generate<ColorType>::color_type> generate<ColorType>::rando
 	}
 }
 
+template <class ColorType>
+std::vector<typename generate<ColorType>::color_type> generate<ColorType>::uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha) {
+	auto lower = color_limits_t<scalar_type>::lower;
+	auto upper = color_limits_t<scalar_type>::upper;
+	float range = static_cast<float>(upper) - static_cast<float>(lower);
+
+
+	float r_hue = 2.f * M_PI * static_cast<float>(hue_range.second - hue_range.first) / range;
+	float r_sat = static_cast<float>(sat_range.second - sat_range.first) / range;
+	float r_light = static_cast<float>(value_range.second - value_range.first) / range;
+	float l_hue = 2.f * M_PI * static_cast<float>(hue_range.first - lower) / range;
+	float l_sat = static_cast<float>(sat_range.first - lower) / range;
+	float l_light = static_cast<float>(value_range.first - lower) / range;
+	if (r_hue < 0.f || r_sat < 0.f || r_light < 0.f) {
+		throw std::runtime_error("generate::uniform: Invalid range input.");
+	}
+	float sum = r_hue/(2.f*M_PI) + r_sat + r_light;
+	Eigen::Vector3f w(r_hue / (2.f * M_PI * sum), r_sat / sum, r_light / sum);
+	float eps = Eigen::NumTraits<float>::dummy_precision();
+	float prod = (w[0] < eps ? 1.f : w[0]) * (w[1] < eps ? 1.f : w[1]) * (w[2] < eps ? 1.f : w[2]);
+
+	float factor = cbrt(count) / cbrt(prod);
+	for (int i=0; i<3; ++i) {
+		w[i] = std::max(w[i] * factor, 1.f);
+	}
+	unsigned int c_s = std::floor(w[1]);
+	unsigned int c_l = std::floor(w[2]);
+	unsigned int c_h = std::ceil(static_cast<float>(count) / (c_s*c_l));
+
+	float s_h = r_hue / (c_h > 0.f ? c_h : 1.f);
+	float s_s = r_sat / (c_s > 1.f ? c_s - 1.f : 1.f);
+	float s_l = r_light / (c_l > 1.f ? c_l - 1.f : 2.f);
+	std::vector<color_type> result;
+	for (unsigned int i=0; i<c_h; ++i) {
+		float h = l_hue + static_cast<float>(i) * s_h;
+		for (unsigned int j=0; j<c_s; ++j) {
+			float s = l_sat + static_cast<float>(j) * s_s;
+			for (unsigned int k=0; k<c_l; ++k) {
+				float l = l_light + static_cast<float>(k) * s_l;
+				result.push_back(color_type(HSVA<scalar_type>(h, s, l, alpha)));
+			}
+		}
+	}
+	result.resize(count);
+	return result;
+}
+
+template <class ColorType>
+std::vector<typename generate<ColorType>::color_type> generate<ColorType>::shuffled_uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha) {
+	auto colors = uniform(count, hue_range, value_range, sat_range, alpha);
+	uint32_t seed = std::chrono::system_clock::now().time_since_epoch().count();
+	std::shuffle(colors.begin(), colors.end(), std::default_random_engine(seed));
+	return colors;
+}
+
 
 #define TYPE_LIST \
 	X(float) \
@@ -290,6 +349,5 @@ TYPE_LIST
 #undef X
 
 
-
-
+} // colors
 } // damogran

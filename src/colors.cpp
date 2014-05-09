@@ -18,7 +18,6 @@
 #include <chrono>
 
 namespace damogran {
-namespace colors {
 
 
 template <typename Scalar> struct color_limits_t;
@@ -349,5 +348,4 @@ TYPE_LIST
 #undef X
 
 
-} // colors
 } // damogran

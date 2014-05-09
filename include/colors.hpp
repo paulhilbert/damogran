@@ -18,7 +18,6 @@
 #include "common.hpp"
 
 namespace damogran {
-namespace colors {
 
 
 template <typename Scalar>
@@ -218,7 +217,6 @@ struct generate {
 };
 
 
-} // colors
 } // damogran
 
 #endif /* DAMOGRAN_COLORS_HPP_ */

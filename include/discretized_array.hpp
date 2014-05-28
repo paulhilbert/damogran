@@ -6,6 +6,10 @@
 #include <functional>
 #include <Eigen/Dense>
 
+#ifdef USE_CEREAL
+#include "cereal.hpp"
+#endif // USE_CEREAL
+
 namespace damogran {
 
 
@@ -21,6 +25,10 @@ class discretized_array {
 		typedef Eigen::Matrix<int, D, 1> vec_int;
 		typedef vec_float float_key_type;
 		typedef vec_int key_type;
+
+#ifdef USE_CEREAL
+		friend class cereal::access;
+#endif // USE_CEREAL
 
 	public:
 		discretized_array(const vec_int& bin_counts, const vec_float& lower_bounds, const vec_float& upper_bounds, const value_type& init_value = value_type());
@@ -39,17 +47,21 @@ class discretized_array {
 		template <typename Func>
 		void forall_keys(Func&& func) const;
 
-		void serialize(std::ofstream& out) const;
-		static ptr deserialize(std::ifstream& in);
-
 	protected:
 		int index_of(const key_type& key) const;
 		key_type key_of(int index) const;
+
+#ifdef USE_CEREAL
+		discretized_array();
+		template <class Archive>
+		void serialize(Archive& ar);
+#endif // USE_CEREAL
 
 	protected:
 		vec_int   bin_counts_;
 		vec_float lower_bounds_;
 		vec_float upper_bounds_;
+		value_type init_value_;
 		vec_float deltas_;
 		vec_int   offsets_;
 		int       size_;

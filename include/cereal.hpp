@@ -44,8 +44,6 @@ void load(Archive& ar, ::Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows
 	int rows, cols;
 	ar(CEREAL_NVP(rows));
 	ar(CEREAL_NVP(cols));
-	if (rows == 0) { std::cout << "rows" << "\n"; }
-	if (cols == 0) { std::cout << "cols" << "\n"; }
 	if (rows * cols != m.size()) m.resize(rows, cols);
 	_Scalar value;
 	_Scalar* data = m.data();
@@ -76,6 +74,8 @@ inline void serialize(Archive& ar, ::Eigen::Quaternion<_Scalar, _Options>& quat)
 
 namespace damogran {
 
+typedef enum {BINARY, XML, JSON} archive_t;
+
 template <class Archive>
 inline void serialize_values(Archive&) {
 }
@@ -97,7 +97,7 @@ inline void serialize(const std::string& path, Ts&&... values) {
 	{
 		Archive ar(out);
 
-		serialize_values(ar, std::forward<Ts...>(values...));
+		serialize_values(ar, std::forward<Ts>(values)...);
 	}
 
 	out << "\n";
@@ -115,15 +115,44 @@ inline void deserialize(const std::string& path, Ts&&... values) {
 	{
 		Archive ar(in);
 
-		serialize_values(ar, std::forward<Ts...>(values...));
+		serialize_values(ar, std::forward<Ts>(values)...);
 	}
 
 	in.close();
+}
+
+template <typename... Ts>
+inline void serialize(archive_t type, const std::string& path, Ts&&... values) {
+	switch (type) {
+		case BINARY: serialize<cereal::BinaryOutputArchive>(path, std::forward<Ts>(values)...); break;
+		case XML:    serialize<cereal::XMLOutputArchive>(path, std::forward<Ts>(values)...); break;
+		case JSON:   serialize<cereal::JSONOutputArchive>(path, std::forward<Ts>(values)...); break;
+		default: std::invalid_argument("serialize(): Unknown archive type. Must be one of {BINARY, XML, JASON}");
+	}
+}
+
+template <typename... Ts>
+inline void deserialize(archive_t type, const std::string& path, Ts&&... values) {
+	switch (type) {
+		case BINARY: deserialize<cereal::BinaryInputArchive>(path, std::forward<Ts>(values)...); break;
+		case XML:    deserialize<cereal::XMLInputArchive>(path, std::forward<Ts>(values)...); break;
+		case JSON:   deserialize<cereal::JSONInputArchive>(path, std::forward<Ts>(values)...); break;
+		default: std::invalid_argument("deserialize(): Unknown archive type. Must be one of {BINARY, XML, JASON}");
+	}
 }
 
 
 } // damogran
 
 #endif /* USE_CEREAL */
+
+
+#ifdef USE_CEREAL
+#define CEREAL_ACCESS \
+	friend class ::cereal::access;
+#else
+#define CEREAL_ACCESS
+#endif
+
 
 #endif /* DAMOGRAN_CEREAL_HPP_ */

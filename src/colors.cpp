@@ -338,12 +338,20 @@ TYPE_LIST
 #define X(type) \
 	template RGB<type> generate<RGB<type>>::random_hue(type value, type saturation, type alpha); \
 	template std::vector<RGB<type>> generate<RGB<type>>::random_hues(uint32_t count, type value, type saturation, type alpha); \
+	template std::vector<RGB<type>> generate<RGB<type>>::uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha); \
+	template std::vector<RGB<type>> generate<RGB<type>>::shuffled_uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha); \
 	template RGBA<type> generate<RGBA<type>>::random_hue(type value, type saturation, type alpha); \
 	template std::vector<RGBA<type>> generate<RGBA<type>>::random_hues(uint32_t count, type value, type saturation, type alpha); \
+	template std::vector<RGBA<type>> generate<RGBA<type>>::uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha); \
+	template std::vector<RGBA<type>> generate<RGBA<type>>::shuffled_uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha); \
 	template HSV<type> generate<HSV<type>>::random_hue(type value, type saturation, type alpha); \
 	template std::vector<HSV<type>> generate<HSV<type>>::random_hues(uint32_t count, type value, type saturation, type alpha); \
+	template std::vector<HSV<type>> generate<HSV<type>>::uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha); \
+	template std::vector<HSV<type>> generate<HSV<type>>::shuffled_uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha); \
 	template HSVA<type> generate<HSVA<type>>::random_hue(type value, type saturation, type alpha); \
-	template std::vector<HSVA<type>> generate<HSVA<type>>::random_hues(uint32_t count, type value, type saturation, type alpha);
+	template std::vector<HSVA<type>> generate<HSVA<type>>::random_hues(uint32_t count, type value, type saturation, type alpha); \
+	template std::vector<HSVA<type>> generate<HSVA<type>>::uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha); \
+	template std::vector<HSVA<type>> generate<HSVA<type>>::shuffled_uniform(uint32_t count, const range_type& hue_range, const range_type& value_range, const range_type& sat_range, scalar_type alpha);
 TYPE_LIST
 #undef X
 

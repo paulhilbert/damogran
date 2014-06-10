@@ -40,6 +40,7 @@ class discretized_array {
 		value_type& operator[](const key_type& key);
 
 		key_type discretize(const float_key_type& desc) const;
+		float_key_type interpolate(const key_type& desc, float interpolation_param = 0.f) const;
 
 		template <typename Func>
 		void forall_keys(Func&& func);

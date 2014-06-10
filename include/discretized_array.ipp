@@ -44,6 +44,11 @@ inline typename discretized_array<D,T>::key_type discretized_array<D,T>::discret
 }
 
 template <int D, typename T>
+inline typename discretized_array<D,T>::float_key_type discretized_array<D,T>::interpolate(const key_type& key, float interpolation_param) const {
+	return (key.template cast<float>() + float_key_type::Constant(interpolation_param)).cwiseProduct(deltas_) + lower_bounds_;
+}
+
+template <int D, typename T>
 template <typename Func>
 inline void discretized_array<D,T>::forall_keys(Func&& func) {
 	for (int i = 0; i < size_; ++i) {
